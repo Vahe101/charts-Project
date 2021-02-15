@@ -5,6 +5,8 @@ import Button from "../../shared/Button";
 import BarChart from "../BarChart";
 import PieChart from "../PieChart";
 
+import "./index.scss";
+
 const chartTypes = {
     pie: 'pie',
     bar: 'bar',
@@ -17,11 +19,11 @@ const Connected = ({ getUsersRequest, users }) => {
         getUsersRequest();
     }, []);
 
-    const isDataExist = users.items.length > 0 ? true : false;
+    const isDataExist = users.items.length > 0;
 
     return (
         <div className="container">
-            <div>
+            <div className="buttonsDiv">
                 <Button value="SimpleBarChart" onClick={() => setContentVerification(chartTypes.bar)} />
                 <Button value="PieChart" onClick={() => setContentVerification(chartTypes.pie)} />
             </div>

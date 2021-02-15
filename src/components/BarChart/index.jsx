@@ -1,24 +1,51 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { generateRandomColors, createColorsWithOpacity } from "../../shared/utils";
 
 const CHART_COUNT = 8;
 
 const BarChart = ({ data }) => {
-    const colors = useMemo(() => generateRandomColors(CHART_COUNT), []);
-    const colorsOpacity = useMemo(() => createColorsWithOpacity(colors), []);
-    const [backgroundColor, setBackgroundColor] = useState(colors);
-    const [colorsWithOpacity, setColorsWithOpacity] = useState(colorsOpacity);
-    const [state, setState] = useState(null);
-    const [options, setOptions] = useState(null);
+    const colors = generateRandomColors(CHART_COUNT);
+    const colorsOpacity = createColorsWithOpacity(colors);
+    const [backgroundColor, setBackgroundColor] = useState([]);
+    const [prevBackgroundColor, setPrevBackgroundColor] = useState();
+    const [colorsWithOpacity, setColorsWithOpacity] = useState([]);
+    const [prevColorsWithOpacity, setPrevColorsWithOpacity] = useState();
+    const [state, setState] = useState();
+    const [options, setOptions] = useState();
+    const [index, setIndex] = useState();
 
     useEffect(() => {
+        if (backgroundColor.length !== 8) {
+            Array.prototype.push.apply(backgroundColor, colors);
+            setBackgroundColor([...backgroundColor]);
+        }
+    }, [backgroundColor]);
+
+    useEffect(() => {
+        if (colorsWithOpacity.length !== 8) {
+            Array.prototype.push.apply(colorsWithOpacity, colorsOpacity);
+            setColorsWithOpacity([...colorsWithOpacity]);
+        }
+    }, [colorsWithOpacity]);
+
+    useEffect(() => {
+        debugger
         setState(getState(backgroundColor, colorsWithOpacity));
         setOptions(getOptions());
-    }, [])
+    }, []);
 
     const getState = (backgroundColor, colorsWithOpacity) => ({
-        labels: ["Russia", "Canada", "USA", "China", "Brazil", "Australia", "India", "Others"],
+        labels: [
+            "Russia",
+            "Canada",
+            "USA",
+            "China",
+            "Brazil",
+            "Australia",
+            "India",
+            "Others"
+        ],
         datasets: [{
             label: "Rainfall",
             backgroundColor: backgroundColor,
@@ -40,17 +67,32 @@ const BarChart = ({ data }) => {
         responsive: true,
     });
 
+    const diagramClickHelper = (index, changeColor) => {
+        setIndex(index);
+        setPrevBackgroundColor(backgroundColor.splice(index, 1, changeColor));
+        setPrevColorsWithOpacity(colorsWithOpacity.splice(index, 1, changeColor));
+        setBackgroundColor([...backgroundColor]);
+        setColorsWithOpacity([...colorsWithOpacity]);
+        setState(getState(backgroundColor, colorsWithOpacity));
+    };
+
     const onDiagramClick = (elements) => {
-        if (elements.length > 0) {
-            const index = elements[0]._index;
-            const randColor = generateRandomColors(1)[0];
-            const randColorWithOpacity = randColor + "95";
-            colors.splice(index, 1, randColor);
-            colorsOpacity.splice(index, 1, randColorWithOpacity);
-            setBackgroundColor([...colors]);
-            setColorsWithOpacity([...colorsOpacity]);
-            setState(getState(backgroundColor, colorsWithOpacity));
+        const color = "#000000";
+        if (elements.length > 0 && index !== undefined) {
+            backgroundColor.splice(index, 1, prevBackgroundColor);
+            colorsWithOpacity.splice(index, 1, prevColorsWithOpacity);
+            diagramClickHelper(elements[0]._index, color);
         }
+        else if (elements.length > 0 && index === undefined) {
+            diagramClickHelper(elements[0]._index, color);
+        }
+        else if (elements.length === 0) {
+            backgroundColor.splice(index, 1, prevBackgroundColor);
+            colorsWithOpacity.splice(index, 1, prevColorsWithOpacity);
+            setBackgroundColor([...backgroundColor]);
+            setColorsWithOpacity([...colorsWithOpacity]);
+            setState(getState(backgroundColor, colorsWithOpacity));
+        };
     }
 
     return (
