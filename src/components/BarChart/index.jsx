@@ -30,7 +30,6 @@ const BarChart = ({ data }) => {
     }, [colorsWithOpacity]);
 
     useEffect(() => {
-        debugger
         setState(getState(backgroundColor, colorsWithOpacity));
         setOptions(getOptions());
     }, []);
