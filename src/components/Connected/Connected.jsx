@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { getUsersRequest } from "../../store/chartsData/actions";
+import Chart from "../Charts";
 import Button from "../../shared/Button";
-import BarChart from "../BarChart";
-import PieChart from "../PieChart";
+import { getUsersRequest } from "../../store/chartsData/actions";
 
 import "./index.scss";
 
@@ -13,7 +12,7 @@ const chartTypes = {
 };
 
 const Connected = ({ getUsersRequest, users }) => {
-    const [contentVerification, setContentVerification] = useState(chartTypes.bar);
+    const [activeChart, setActiveChart] = useState(chartTypes.bar);
 
     useEffect(() => {
         getUsersRequest();
@@ -24,13 +23,13 @@ const Connected = ({ getUsersRequest, users }) => {
     return (
         <div className="container">
             <div className="buttonsDiv">
-                <Button value="SimpleBarChart" onClick={() => setContentVerification(chartTypes.bar)} />
-                <Button value="PieChart" onClick={() => setContentVerification(chartTypes.pie)} />
+                <Button value="SimpleBarChart" onClick={() => setActiveChart(chartTypes.bar)} />
+                <Button value="PieChart" onClick={() => setActiveChart(chartTypes.pie)} />
             </div>
             {isDataExist &&
                 (<>
-                    {contentVerification === chartTypes.bar && (<BarChart data={users.items} />)}
-                    {contentVerification === chartTypes.pie && (<PieChart data={users.items} />)}
+                    {activeChart === chartTypes.bar && (<Chart data={users.items} type={chartTypes.bar} />)}
+                    {activeChart === chartTypes.pie && (<Chart data={users.items} type={chartTypes.pie} />)}
                 </>)
             }
         </div>
